@@ -66,7 +66,7 @@ Utilisation de GROUP BY, ORDER BY, JOIN, WINDOW pour explorer les patterns RH.
 
 Calcul de KPI clés : turnover, durée moyenne d’emploi, salaire médian.
 
-Visualisations
+# Visualisations
 
 Graphiques de distribution (salaires, ancienneté).
 
@@ -82,11 +82,11 @@ Détection de départements à risque.
 
 Proposition de leviers RH (formation, promotion, ajustement salarial).
 
-🧩 Requêtes SQL extraites
+# 🧩 Requêtes SQL extraites
 
 (Les extraits suivants sont issus du notebook et résument les principales analyses SQL effectuées)
 
-Requête 1
+"Requête 1"
 CREATE TABLE hr AS 
 SELECT * FROM read_csv_auto('/kaggle/input/hr-dataa/HRDataset_v14.csv');
 
@@ -94,7 +94,7 @@ SELECT * FROM read_csv_auto('/kaggle/input/hr-dataa/HRDataset_v14.csv');
 Objectif : Création de la table principale à partir du CSV.
 → Préparation du jeu de données pour requêtes SQL.
 
-Requête 2
+"Requête 2"
 SELECT Department, AVG(Salary) AS avg_salary, COUNT(*) AS nb_employes
 FROM hr
 GROUP BY Department
@@ -104,7 +104,7 @@ ORDER BY avg_salary DESC;
 Objectif : Calcul du salaire moyen et du nombre d’employés par département.
 Interprétation : Permet d’identifier les départements les mieux rémunérés et ceux à potentiel sous-payé.
 
-Requête 3
+"Requête 3"
 SELECT Gender, AVG(Salary) AS avg_salary
 FROM hr
 GROUP BY Gender;
