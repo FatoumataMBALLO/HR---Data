@@ -1,218 +1,135 @@
-### Projet HR SQL — Analyse exploratoire RH avec DuckDB / SQL
+# 📊 Tableau de bord RH – Analyse du Turnover et de la Rétention
+### 🧠 Présentation du projet
+
+Ce projet consiste en la conception d’un tableau de bord RH interactif sous Power BI, basé sur un jeu de données issu de Kaggle (HRDataset_v14.csv).
+L’objectif est d’analyser les effectifs, le turnover, la rétention, la satisfaction, l’engagement et les rémunérations, afin d’apporter une aide à la décision pour les équipes RH.
+Le projet adopte une approche end to end, depuis l’exploration des données en SQL jusqu’à la visualisation décisionnelle.
+________________________________________
+
+### 🎯 Objectifs analytiques
+
+- Suivre les indicateurs RH clés (effectif, turnover, rétention) ;
+- Identifier les profils à risque de départ
+- Analyser l’impact de l’ancienneté, de l’âge, du poste et du département
+- Étudier la satisfaction, l’engagement et leur lien avec le turnover
+- Analyser les salaires et l’équité salariale
+________________________________________
+
+## 🗂️ Source des données
+- Origine : Kaggle
+- Dataset : HRDataset_v14.csv
+- Périmètre : données RH anonymisées (effectifs, postes, salaires, dates, satisfaction, départs)
+________________________________________
+
+## 🛠️ Stack technique
+- Kaggle : environnement de travail
+- DuckDB : exploration, nettoyage et enrichissement des données (SQL)
+- Power Query (Power BI) : transformations métier
+- Power BI Desktop : modélisation, DAX et visualisation
+________________________________________
+
+## 🔹 1. Exploration et préparation des données (DuckDB)
+- 📌 Chargement des données
+Les données CSV sont chargées dans DuckDB afin de travailler efficacement en SQL, sans dépendance à un SGBD externe.
+CREATE TABLE hr AS
+SELECT *
+FROM read_csv_auto('HRDataset_v14.csv');
+
+- 📌 Analyse exploratoire (EDA)
+•	Vérification des types de colonnes
+•	Comptage des employés
+•	Calcul d’indicateurs globaux :
+  -	satisfaction moyenne
+  - salaire moyen
+  - nombre de départs
+  - absentéisme
+    
+SELECT
+COUNT(*) AS total_rows,
+AVG(EmpSatisfaction) AS avg_satisfaction,
+AVG(Salary) AS avg_salary,
+SUM(CASE WHEN DateofTermination IS NOT NULL THEN 1 ELSE 0 END) AS total_left
+FROM hr;
+
+- 📌 Nettoyage et enrichissement
+•	Normalisation des noms et types
+•	Conversion des dates
+•	Création de l’ancienneté en années :
+ROUND(
+datediff('day', DateofHire, COALESCE(DateofTermination, CURRENT_DATE)) / 365.25,
+2
+) AS Years_at_Company
+
+  
+- 📌 Export
+La table finale est exportée en CSV et devient la source unique pour Power BI.
+________________________________________
+## 🔹 2. Transformations métier (Power Query – Power BI)
+-	Conversion et typage des colonnes
+-	Correction des dates de naissance incohérentes
+-	Calcul de l’âge réel
+-	Création de variables analytiques : 
+	- tranches d’âge
+    - classes d’ancienneté
+     - indicateurs TURNOVER / RÉTENTION
+
+-	Harmonisation des libellés (genre, postes, départements)
+👉 Objectif : garantir des calculs DAX fiables et une lecture métier claire.
+________________________________________
+
+## 🔹 3. Modélisation et indicateurs RH (Power BI)
+### 📊 KPI principaux
+-	Effectif total
+-	Turnover (%)
+-	Rétention (%)
+- Ancienneté moyenne
+-	Âge moyen
+-	Satisfaction (%)
+-	Engagement (%)
+-	Salaire moyen
+### 📈 Axes d’analyse
+-	Vue d’ensemble RH
+-	Engagement & satisfaction
+-	Analyse des départs
+-	Turnover vs rétention
+-	Salaires et équité salariale
+### 🧭 Filtres interactifs
+-	Année
+-	Département
+-	Poste
+-	Genre
+-	Tranche d’âge
+-	Motif de départ
+________________________________________
 
-# 🎯 Résumé
+## 📌 Résultats clés (exemple)
+-	Effectif total : 311 employés
+-	Turnover : 33,44 %
+-	Rétention : 66,56 %
+-	Satisfaction moyenne : 61,74 %
+-	Engagement moyen : 66 %
 
-Analyse exploratoire du jeu de données RH (HRDataset) en utilisant DuckDB dans un notebook Jupyter/Colab.
-Le projet met en pratique la manipulation SQL (SELECT, GROUP BY, JOIN, WINDOW) pour extraire des insights sur les salaires, les départements, le turnover et la performance des employés.
+Les départs sont plus concentrés sur certaines tranches d’âge, niveaux d’ancienneté et départements, mettant en évidence des zones à risque RH.
+________________________________________
 
-📁 Contenu du repository
+## 🚀 Valeur ajoutée du projet
+-	Utilisation de SQL analytique avancé
+-	Exploitation de DuckDB pour un workflow moderne
+-	Séparation claire entre :
+    -	préparation technique
+  	- logique métier
+    -	visualisation décisionnelle
+-	Approche orientée décision RH
+________________________________________
 
-projet-hr-sql.ipynb → Notebook principal contenant les analyses, requêtes SQL et visualisations.
+## 🏁 Conclusion
+Ce projet illustre une approche complète de l’analyse de données RH, depuis l’exploration et le nettoyage en SQL jusqu’à la création d’un tableau de bord Power BI orienté décision. Il met particulièrement l’accent sur les problématiques de turnover, de fidélisation et de rémunération des collaborateurs.
 
-data/HRDataset_v14.csv → Jeu de données original (à placer dans le dossier data/).
+📊 Un projet idéal pour démontrer des compétences en Data Analytics, BI et analyse RH.
 
-🗂️ Jeu de données
+## 🎥 Démonstration du rapport
 
-Le notebook charge un fichier CSV nommé :
+Une courte vidéo présente la navigation, les filtres interactifs et les principaux axes d’analyse du tableau de bord RH.
 
-HRDataset_v14.csv
+👉 [Voir la vidéo de démonstration du rapport Power BI] (https://drive.google.com/file/d/1PjExT15yWSn8nZs6dsVz2yTGGnHSdvQS/view?usp=sharing)
 
-Ce dataset RH contient des informations sur les employés : identifiants, sexe, service, poste, niveau d’éducation, date d’embauche, performance, salaire, statut de départ, etc.
-Il est souvent utilisé pour des analyses de turnover, satisfaction, et équité salariale.
-
-# 🎯 Objectifs
-
-Charger et explorer les données RH dans une base SQL en mémoire.
-
-Réaliser des analyses SQL pour répondre à des questions clés :
-
-Quelle est la distribution des salaires par département et par niveau d’éducation ?
-
-Quel est le taux de turnover et la durée moyenne d’emploi ?
-
-Existe-t-il une corrélation entre performance et salaire ?
-
-Quels départements présentent un risque élevé de départs ?
-
-# 🧠 Méthodologie (de A à Z)
-
-Initialisation de l’environnement
-
-Importation des bibliothèques (duckdb, pandas, matplotlib).
-
-Création d’une base DuckDB en mémoire.
-
-Connexion et import du fichier CSV RH.
-
-Exploration initiale
-
-Affichage des 5 premières lignes pour un aperçu rapide.
-
-Vérification des types de colonnes et des valeurs manquantes.
-
-Nettoyage des données
-
-Standardisation des noms de colonnes.
-
-Transformation des dates (DateofHire, DateofTermination).
-
-Création de variables calculées : âge, ancienneté, tenure (mois), etc.
-
-Requêtes analytiques
-
-Agrégations (moyennes, comptages).
-
-Utilisation de GROUP BY, ORDER BY, JOIN, WINDOW pour explorer les patterns RH.
-
-Calcul de KPI clés : turnover, durée moyenne d’emploi, salaire médian.
-
-# Visualisations
-
-Graphiques de distribution (salaires, ancienneté).
-
-Heatmaps de corrélations.
-
-Classements par département (ex : top 5 salaires moyens).
-
-Interprétation
-
-Analyse de l’équité salariale.
-
-Détection de départements à risque.
-
-Proposition de leviers RH (formation, promotion, ajustement salarial).
-
-# 🧩 Requêtes SQL extraites
-
-(Les extraits suivants sont issus du notebook et résument les principales analyses SQL effectuées)
-
-"Requête 1"
-CREATE TABLE hr AS 
-SELECT * FROM read_csv_auto('/kaggle/input/hr-dataa/HRDataset_v14.csv');
-
-
-Objectif : Création de la table principale à partir du CSV.
-→ Préparation du jeu de données pour requêtes SQL.
-
-"Requête 2"
-SELECT Department, AVG(Salary) AS avg_salary, COUNT(*) AS nb_employes
-FROM hr
-GROUP BY Department
-ORDER BY avg_salary DESC;
-
-
-Objectif : Calcul du salaire moyen et du nombre d’employés par département.
-Interprétation : Permet d’identifier les départements les mieux rémunérés et ceux à potentiel sous-payé.
-
-"Requête 3"
-SELECT Gender, AVG(Salary) AS avg_salary
-FROM hr
-GROUP BY Gender;
-
-
-Objectif : Comparaison du salaire moyen selon le genre.
-Interprétation : Vérification de l’équité salariale hommes/femmes.
-
-Requête 4
-SELECT Department, Termd, COUNT(*) AS total,
-100.0 * SUM(CASE WHEN Termd = 1 THEN 1 ELSE 0 END) / COUNT(*) AS turnover_rate
-FROM hr
-GROUP BY Department;
-
-
-Objectif : Calcul du taux de turnover par département.
-Interprétation : Identifier les zones de forte rotation pour actions de rétention.
-
-Requête 5
-SELECT EducationLevel, AVG(Salary) AS avg_salary
-FROM hr
-GROUP BY EducationLevel
-ORDER BY avg_salary DESC;
-
-
-Objectif : Impact du niveau d’éducation sur le salaire.
-Interprétation : Met en évidence la relation entre formation et rémunération.
-
-Requête 6
-SELECT Department, AVG(PerformanceScore) AS perf_avg, AVG(Salary) AS sal_avg
-FROM hr
-GROUP BY Department;
-
-
-Objectif : Relier performance moyenne et salaire par département.
-Interprétation : Détecter si la performance est récompensée équitablement.
-
-📊 Interprétations globales & insights
-
-Salaire moyen par département : Les départements Finance et IT présentent les salaires les plus élevés. Certains services opérationnels semblent sous-rémunérés.
-
-Turnover : Les taux les plus élevés se concentrent dans les départements à faible salaire ou fort stress (Call Center, Sales).
-
-Équité salariale : L’écart de salaire moyen entre genres reste faible (<5%), signe d’une politique RH globalement équitable.
-
-Performance vs Salaire : Une corrélation modérée est observée — les employés les plus performants ne sont pas toujours les mieux rémunérés.
-
-Formation : Les salariés diplômés ou ayant plus d’expérience tendent à rester plus longtemps dans l’entreprise.
-
-💡 Recommandations
-
-Réévaluer les grilles salariales des départements à turnover élevé.
-
-Renforcer la reconnaissance de la performance par des bonus ou promotions ciblées.
-
-Investir dans la formation continue pour accroître la satisfaction et réduire les départs.
-
-Mettre en place des enquêtes internes pour comprendre les motifs de turnover.
-
-⚙️ Environnement & dépendances
-
-Python 3.9+
-
-duckdb
-
-pandas
-
-matplotlib
-
-jupyter / colab
-
-Installation rapide :
-
-pip install duckdb pandas matplotlib
-
-🚀 Exécution du projet
-# 1️⃣ Cloner le repo
-git clone https://github.com/<votre-nom-utilisateur>/projet-hr-sql.git
-cd projet-hr-sql
-
-# 2️⃣ Ajouter les données
-mkdir data
-# Placer HRDataset_v14.csv dans data/
-
-# 3️⃣ Créer un environnement virtuel
-python -m venv venv
-source venv/bin/activate
-
-# 4️⃣ Installer les dépendances
-pip install -r requirements.txt
-
-# 5️⃣ Lancer le notebook
-jupyter notebook projet-hr-sql.ipynb
-
-📸 Suggestions pour améliorer ton portfolio
-
-Ajoute des captures d’écran des visualisations (heatmaps, graphes).
-
-Fournis un requirements.txt et un run.sh minimal.
-
-Lien vers ton notebook Kaggle pour crédibilité :
-Voir sur Kaggle
-
-Inclure un résumé exécutif des insights RH les plus marquants (2-3 phrases en haut du README).
-
-Souhaites-tu que je t’ajoute à ce README :
-
-un bloc “📈 Visualisations principales” (avec exemples de graphiques à insérer),
-ou
-
-un fichier requirements.txt et run.sh correspondant à ce projet ?
